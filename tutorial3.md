@@ -66,7 +66,7 @@ IpAddress
 ```
 * You can then enter the public IP address in to a web browser. The website is displayed, including the hostname of the VM.
 
-![alt text]( .\tutorial3_iis.png "Automated IIS install")
+![alt text]( ./tutorial3_iis.png "Automated IIS install")
 
 ### Stop The virtual machine
 ```
