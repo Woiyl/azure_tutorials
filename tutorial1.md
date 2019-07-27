@@ -102,7 +102,7 @@ Id     Name            PSJobTypeName   State         HasMoreData     Location   
 * Check that the second VM is provisioned
 ```
 Get-AzPublicIpAddress `
->>    -ResourceGroupName "tutorial1ResourceGroupVM"  | Select IpAddress
+-ResourceGroupName "tutorial1ResourceGroupVM"  | Select IpAddress
 
 IpAddress
 ---------
@@ -201,6 +201,35 @@ PowerState/running
 ```
 
 ### Stop a VM
+```
 Stop-AzVM `
    -ResourceGroupName "tutorial1ResourceGroupVM" `
    -Name "tutorial1VM" -Force
+```
+
+```
+OperationId : a061f315-f6a7-4a62-a863-b31c0dfbbe77
+Status      : Succeeded
+StartTime   : 7/27/2019 10:45:47 PM
+EndTime     : 7/27/2019 10:46:34 PM
+Error       :
+```
+### Start a VM
+```
+Start-AzVM `
+   -ResourceGroupName "tutorial1ResourceGroupVM" `
+   -Name "tutorial1VM"
+```
+```
+OperationId : dcff22ba-c279-4fe1-ace2-130b18df1051
+Status      : Succeeded
+StartTime   : 7/27/2019 10:51:10 PM
+EndTime     : 7/27/2019 10:51:38 PM
+Error       :
+```
+### Delete resource group
+```
+Remove-AzResourceGroup `
+   -Name "tutorial1ResourceGroupVM" `
+   -Force
+```
