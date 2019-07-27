@@ -158,3 +158,49 @@ RequestId IsSuccessStatusCode StatusCode ReasonPhrase
 
 
 ```
+* Deallocating before resizing
+```
+Stop-AzVM `
+   -ResourceGroupName "tutorial1ResourceGroupVM" `
+   -Name "tutorial1VM" -Force
+$vm = Get-AzVM `
+   -ResourceGroupName "tutorial1ResourceGroupVM"  `
+   -VMName "tutorial1VM"
+$vm.HardwareProfile.VmSize = "Standard_E2s_v3"
+Update-AzVM -VM $vm `
+   -ResourceGroupName "tutorial1ResourceGroupVM"
+Start-AzVM `
+   -ResourceGroupName "tutorial1ResourceGroupVM"  `
+   -Name $vm.name
+```
+```
+RequestId IsSuccessStatusCode StatusCode ReasonPhrase
+--------- ------------------- ---------- ------------
+                         True         OK OK
+
+
+OperationId : bc6cbcd9-ac06-4dc7-9420-50eba8d6ec4b
+Status      : Succeeded
+StartTime   : 7/27/2019 10:33:09 PM
+EndTime     : 7/27/2019 10:33:28 PM
+Error       :
+```
+
+### VM power states
+
+```
+Get-AzVM `
+    -ResourceGroupName "tutorial1ResourceGroupVM" `
+    -Name "tutorial1VM" `
+    -Status | Select @{n="Status"; e={$_.Statuses[1].Code}}
+```
+```
+Status
+------
+PowerState/running
+```
+
+### Stop a VM
+Stop-AzVM `
+   -ResourceGroupName "tutorial1ResourceGroupVM" `
+   -Name "tutorial1VM" -Force
