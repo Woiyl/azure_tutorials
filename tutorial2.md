@@ -128,3 +128,27 @@ CreateOption            : FromImage
 DiskSizeGB              : 127
 ManagedDisk             : Microsoft.Azure.Management.Compute.Models.ManagedDiskParameters
 ```
+
+### Stop The virtual machine
+```
+Stop-AzVM `
+   -ResourceGroupName "tutorial2ResourceGroupDisk" `
+   -Name "tutorial2VM" -Force
+```
+```
+
+OperationId : 8af757ef-bfcf-4789-b189-6b0df4f37160
+Status      : Succeeded
+StartTime   : 7/28/2019 12:51:36 AM
+EndTime     : 7/28/2019 1:00:13 AM
+Error       :
+```
+### Delete resource group
+```
+Remove-AzResourceGroup `
+   -Name "tutorial2ResourceGroupDisk" `
+   -Force
+```
+```
+True
+```
