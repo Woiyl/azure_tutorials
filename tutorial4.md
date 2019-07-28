@@ -127,11 +127,21 @@ $images = Get-AzResource -ResourceType Microsoft.Compute/images
 $images.name
 ```
 ```
-
+tutorial4Image
 ```
 * Deletes an image from the resource group.
 ```
 Remove-AzImage `
-    -ImageName myImage `
-	-ResourceGroupName myResourceGroup
+    -ImageName tutorial4Image `
+	-ResourceGroupName tutorial4ResourceGroupVM
+```
+
+### Delete resource group
+```
+Remove-AzResourceGroup `
+   -Name "tutorial4ResourceGroupVM" `
+   -Force
+```
+```
+True
 ```
