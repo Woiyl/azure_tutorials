@@ -118,3 +118,14 @@ Get-AzVMSize `
    -ResourceGroupName "tutorial5ResourceGroupAvailability" `
    -AvailabilitySetName "tutorial5AvailabilitySet"
 ```
+```
+Name                   NumberOfCores MemoryInMB MaxDataDiskCount OSDiskSizeInMB ResourceDiskSizeInMB
+----                   ------------- ---------- ---------------- -------------- --------------------
+Standard_B1ls                      1        512                2        1047552                 1024
+Standard_B1ms                      1       2048                2        1047552                 4096
+Standard_B1s                       1       1024                2        1047552                 2048
+Standard_B2ms                      2       8192                4        1047552                16384
+Standard_B2s                       2       4096                4        1047552                 8192
+Standard_B4ms                      4      16384                8        1047552                32768
+Standard_B8ms                      8      32768               16        1047552                65536
+```
