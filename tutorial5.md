@@ -129,3 +129,12 @@ Standard_B2s                       2       4096                4        1047552 
 Standard_B4ms                      4      16384                8        1047552                32768
 Standard_B8ms                      8      32768               16        1047552                65536
 ```
+### Delete resource group
+```
+Remove-AzResourceGroup `
+   -Name "tutorial5ResourceGroupVM" `
+   -Force
+```
+```
+True
+```
