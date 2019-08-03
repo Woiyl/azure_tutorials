@@ -289,3 +289,175 @@ for ($i=1; $i -le 4; $i++)
      -Location WestEurope
 }
 ```
+### Test load balancer
+Obtain the public IP address of your load balancer with __Get-AzPublicIPAddress__
+```
+Get-AzPublicIPAddress -ResourceGroupName "tutorial7ResourceGroupLoadBalancer" `
+  -Name "tutorial7PublicIP" | select IpAddress
+```
+```
+IpAddress
+---------
+13.93.78.196
+```
+The website is displayed, including the hostname of the VM that the load balancer distributed traffic to as in the following example:
+
+![alt text]( ./tutorial7_loadbalancer_iis.png "Loadbalancer in Azure Portal")
+
+To see the load balancer distribute traffic across all three VMs running your app, you can force-refresh your web browser.
+
+### Add amd remove VMs
+This section shows you how to remove or add a VM from the load balancer.
+
+#### Remove a VM from the load balancer
+Get the network interface card with __Get-AzNetworkInterface__, then set the *LoadBalancerBackendAddressPools* property of the virtual NIC to $null. Finally, update the virtual NIC:
+```
+$nic = Get-AzNetworkInterface `
+    -ResourceGroupName "tutorial7ResourceGroupLoadBalancer" `
+    -Name "tutorial7VM4"
+$nic.Ipconfigurations[0].LoadBalancerBackendAddressPools=$null
+Set-AzNetworkInterface -NetworkInterface $nic
+```
+```
+Name                        : tutorial7VM4
+ResourceGroupName           : tutorial7ResourceGroupLoadBalancer
+Location                    : westeurope
+Id                          : /subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoadBalancer/p
+                              roviders/Microsoft.Network/networkInterfaces/tutorial7VM4
+Etag                        : W/"445eec04-8573-4526-a0d9-6ec1f107bb7f"
+ResourceGuid                : 37c3a615-e076-4138-ac57-529d344ae919
+ProvisioningState           : Succeeded
+Tags                        :
+VirtualMachine              : {
+                                "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoadB
+                              alancer/providers/Microsoft.Compute/virtualMachines/tutorial7VM4"
+                              }
+IpConfigurations            : [
+                                {
+                                  "Name": "tutorial7VM4",
+                                  "Etag": "W/\"445eec04-8573-4526-a0d9-6ec1f107bb7f\"",
+                                  "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoa
+                              dBalancer/providers/Microsoft.Network/networkInterfaces/tutorial7VM4/ipConfigurations/tutorial7VM4",
+                                  "PrivateIpAddress": "192.168.1.7",
+                                  "PrivateIpAllocationMethod": "Dynamic",
+                                  "Subnet": {
+                                    "Delegations": [],
+                                    "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupL
+                              oadBalancer/providers/Microsoft.Network/virtualNetworks/tutorial7Vnet/subnets/tutorial7Subnet",
+                                    "ServiceAssociationLinks": []
+                                  },
+                                  "PublicIpAddress": {
+                                    "IpTags": [],
+                                    "Zones": [],
+                                    "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupL
+                              oadBalancer/providers/Microsoft.Network/publicIPAddresses/tutorial7VM4"
+                                  },
+                                  "ProvisioningState": "Succeeded",
+                                  "PrivateIpAddressVersion": "IPv4",
+                                  "LoadBalancerBackendAddressPools": [],
+                                  "LoadBalancerInboundNatRules": [],
+                                  "Primary": true,
+                                  "ApplicationGatewayBackendAddressPools": [],
+                                  "ApplicationSecurityGroups": [],
+                                  "VirtualNetworkTaps": []
+                                }
+                              ]
+DnsSettings                 : {
+                                "DnsServers": [],
+                                "AppliedDnsServers": [],
+                                "InternalDomainNameSuffix": "tpuqv4qolxzu1dol3uvtvqfzlg.ax.internal.cloudapp.net"
+                              }
+EnableIPForwarding          : False
+EnableAcceleratedNetworking : False
+NetworkSecurityGroup        : {
+                                "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoadB
+                              alancer/providers/Microsoft.Network/networkSecurityGroups/tutorial7NetworkSecurityGroup"
+                              }
+TapConfigurations           : []
+Primary                     : True
+MacAddress                  : 00-0D-3A-25-35-A2
+```
+#### Add a VM to the load balancer 
+After performing VM maintenance, or if you need to expand capacity, set the *LoadBalancerBackendAddressPools* property of the virtual NIC to the *BackendAddressPool* from __Get-AzLoadBalancer__:
+
+```
+$lb = Get-AzLoadBalancer `
+    -ResourceGroupName tutorial7ResourceGroupLoadBalancer `
+    -Name tutorial7LoadBalancer 
+$nic.IpConfigurations[0].LoadBalancerBackendAddressPools=$lb.BackendAddressPools[0]
+Set-AzNetworkInterface -NetworkInterface $nic
+```
+```
+Name                        : tutorial7VM4
+ResourceGroupName           : tutorial7ResourceGroupLoadBalancer
+Location                    : westeurope
+Id                          : /subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoadBalancer/p
+                              roviders/Microsoft.Network/networkInterfaces/tutorial7VM4
+Etag                        : W/"dbaf60e3-cf12-4850-b8aa-57e11ff23a50"
+ResourceGuid                : 37c3a615-e076-4138-ac57-529d344ae919
+ProvisioningState           : Succeeded
+Tags                        :
+VirtualMachine              : {
+                                "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoadB
+                              alancer/providers/Microsoft.Compute/virtualMachines/tutorial7VM4"
+                              }
+IpConfigurations            : [
+                                {
+                                  "Name": "tutorial7VM4",
+                                  "Etag": "W/\"dbaf60e3-cf12-4850-b8aa-57e11ff23a50\"",
+                                  "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoa
+                              dBalancer/providers/Microsoft.Network/networkInterfaces/tutorial7VM4/ipConfigurations/tutorial7VM4",
+                                  "PrivateIpAddress": "192.168.1.7",
+                                  "PrivateIpAllocationMethod": "Dynamic",
+                                  "Subnet": {
+                                    "Delegations": [],
+                                    "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupL
+                              oadBalancer/providers/Microsoft.Network/virtualNetworks/tutorial7Vnet/subnets/tutorial7Subnet",
+                                    "ServiceAssociationLinks": []
+                                  },
+                                  "PublicIpAddress": {
+                                    "IpTags": [],
+                                    "Zones": [],
+                                    "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupL
+                              oadBalancer/providers/Microsoft.Network/publicIPAddresses/tutorial7VM4"
+                                  },
+                                  "ProvisioningState": "Succeeded",
+                                  "PrivateIpAddressVersion": "IPv4",
+                                  "LoadBalancerBackendAddressPools": [
+                                    {
+                                      "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGrou
+                              pLoadBalancer/providers/Microsoft.Network/loadBalancers/tutorial7LoadBalancer/backendAddressPools/tutor
+                              ial7BackEndPool"
+                                    }
+                                  ],
+                                  "LoadBalancerInboundNatRules": [],
+                                  "Primary": true,
+                                  "ApplicationGatewayBackendAddressPools": [],
+                                  "ApplicationSecurityGroups": [],
+                                  "VirtualNetworkTaps": []
+                                }
+                              ]
+DnsSettings                 : {
+                                "DnsServers": [],
+                                "AppliedDnsServers": [],
+                                "InternalDomainNameSuffix": "tpuqv4qolxzu1dol3uvtvqfzlg.ax.internal.cloudapp.net"
+                              }
+EnableIPForwarding          : False
+EnableAcceleratedNetworking : False
+NetworkSecurityGroup        : {
+                                "Id": "/subscriptions/xxx-x-xxx-xxxxx/resourceGroups/tutorial7ResourceGroupLoadB
+                              alancer/providers/Microsoft.Network/networkSecurityGroups/tutorial7NetworkSecurityGroup"
+                              }
+TapConfigurations           : []
+Primary                     : True
+MacAddress                  : 00-0D-3A-25-35-A2
+```
+### Delete resource group
+```
+Remove-AzResourceGroup `
+   -Name "tutorial7ResourceGroupLoadBalancer" `
+   -Force
+```
+```
+True
+```
