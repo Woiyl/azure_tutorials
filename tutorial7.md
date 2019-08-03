@@ -207,3 +207,85 @@ Sku                      : {
                              "Name": "Basic"
                            }
 ```
+Update the load balancer
+```
+Set-AzLoadBalancer -LoadBalancer $lb
+```
+### Configure virtual network
+Before you deploy some VMs and can test your balancer, create the supporting virtual network resources. 
+#### Create network resources
+```
+# Create subnet config
+$subnetConfig = New-AzVirtualNetworkSubnetConfig -Name "tutorial7Subnet" -AddressPrefix 192.168.1.0/24
+``` 
+```
+# Create the virtual network
+$vnet = New-AzVirtualNetwork `
+  -ResourceGroupName "tutorial7ResourceGroupLoadBalancer" `
+  -Location "WestEurope" `
+  -Name "tutorial7Vnet" `
+  -AddressPrefix 192.168.0.0/16 `
+  -Subnet $subnetConfig
+```
+The following example creates three virtual NICs. (One virtual NIC for each VM you create for your app in the following steps).You can create additional virtual NICs and VMs at any time and add them to the load balancer:
+```
+for ($i=1; $i -le 3; $i++)
+{
+   New-AzNetworkInterface `
+     -ResourceGroupName "tutorial7ResourceGroupLoadBalancer" `
+     -Name tutorial7VM$i `
+     -Location "WestEurope" `
+     -Subnet $vnet.Subnets[0] `
+     -LoadBalancerBackendAddressPool $lb.BackendAddressPools[0]
+}
+```
+### Create virtual machines 
+To improve the high availability of your app, place your VMs in an availability set.
+```
+$availabilitySet = New-AzAvailabilitySet `
+  -ResourceGroupName "tutorial7ResourceGroupLoadBalancer" `
+  -Name "tutorial7AvailabilitySet" `
+  -Location "WestEurope" `
+  -Sku aligned `
+  -PlatformFaultDomainCount 2 `
+  -PlatformUpdateDomainCount 2
+```
+Set an administrator username and passowrd for the VMs with __GetCredential__ 
+```
+$cred = Get-Credential
+```
+Now we create three VMs and the required virtual network components
+```
+for ($i=1; $i -le 4; $i++)
+{
+    New-AzVm `
+        -ResourceGroupName "tutorial7ResourceGroupLoadBalancer" `
+        -Name "tutorial7VM$i" `
+        -Location "WestEurope" `
+        -VirtualNetworkName "tutorial7Vnet" `
+        -SubnetName "tutorial7Subnet" `
+        -SecurityGroupName "tutorial7NetworkSecurityGroup" `
+        -OpenPorts 80 `
+        -AvailabilitySetName "tutorial7AvailabilitySet" `
+        -Credential $cred `
+        -AsJob
+}
+```
+The -AsJob parameter creates the VM as a background task, so the PowerShell prompts return to you.
+
+### Install IIS with custom script extension
+Use __Set-AzVMExtension__ to install the Custom Script Extension. The extension runs powershell __Add-WindowsFeature Web-Server__ to install the IIS webserver and then updates the __Default.htm__ page to show the hostname of the VM:
+```
+for ($i=1; $i -le 4; $i++)
+{
+   Set-AzVMExtension `
+     -ResourceGroupName "tutorial7ResourceGroupLoadBalancer" `
+     -ExtensionName "IIS" `
+     -VMName tutorial7VM$i `
+     -Publisher Microsoft.Compute `
+     -ExtensionType CustomScriptExtension `
+     -TypeHandlerVersion 1.8 `
+     -SettingString '{"commandToExecute":"powershell Add-WindowsFeature Web-Server; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"}' `
+     -Location WestEurope
+}
+```
